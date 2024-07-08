@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import com.example.demo.dtos.ProductDTO;
 import com.example.demo.model.ProductModel;
 import com.example.demo.repository.ProductRepository;
@@ -38,7 +41,14 @@ public class ProductController {
 
 	@GetMapping("/products")
 	public ResponseEntity<List<ProductModel>> getAll() {
-		return ResponseEntity.status(HttpStatus.OK).body(productRepository.findAll());
+		List<ProductModel> productList = productRepository.findAll();
+		if (!productList.isEmpty()) {
+			for (ProductModel product : productList) {
+				UUID id = product.getIdProduct();
+				product.add(linkTo(methodOn(ProductController.class).getById(id)).withRel("Products List"));
+			}
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(productList);
 	}
 
 	@GetMapping("/products/{id}")
@@ -47,6 +57,7 @@ public class ProductController {
 		if (product.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
 		} else {
+			product.get().add(linkTo(methodOn(ProductController.class).getAll()).withRel("Products List"));
 			return ResponseEntity.status(HttpStatus.OK).body(product.get());
 		}
 	}

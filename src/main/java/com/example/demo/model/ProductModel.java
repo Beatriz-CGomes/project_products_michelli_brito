@@ -9,10 +9,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.springframework.hateoas.RepresentationModel;
 
 @Entity
 @Table(name = "tb_products")
-public class ProductModel implements Serializable {
+public class ProductModel extends RepresentationModel<ProductModel> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
