@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,4 +50,15 @@ public class ProductController {
 		}
 	}
 
+	@PutMapping("/products/{id}")
+	public ResponseEntity<Object> put(@PathVariable(value = "id") UUID id, @RequestBody @Valid ProductDTO dto) {
+		Optional<ProductModel> product = productRepository.findById(id);
+		if (product.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+		} else {
+			var productModel = product.get();
+			BeanUtils.copyProperties(dto, productModel);
+			return ResponseEntity.status(HttpStatus.OK).body(productRepository.save(productModel));
+		}
+	}
 }
